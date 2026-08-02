@@ -4,7 +4,9 @@ Language: English | [日本語](README.ja.md)
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shimo4228/human-gate) [![GitMCP](https://img.shields.io/endpoint?url=https://gitmcp.io/badge/shimo4228/human-gate)](https://gitmcp.io/shimo4228/human-gate)
 
-An always-loaded rule (plus a deterministic detection hook) that fixes **what the human judges** at a coding agent's approval gate. Most gate designs only answer *when* to stop (reversibility, blast radius). This rule answers the second axis: *once stopped, what is the human actually approving?*
+> **Retired from the author's live harness on 2026-08-02.** The platform now treats the operator's task authorization as the approval boundary and lets the agent continue within it, so a second custom approval step was no longer useful. The repository remains as a historical example of removing a scaffold after its role has been absorbed; it is no longer synced from or active in the author's harness.
+
+This repository documents an always-loaded rule (plus a deterministic detection hook) that fixed **what the human judges** at a coding agent's approval gate. Most gate designs only answer *when* to stop (reversibility, blast radius). This rule answered the second axis: *once stopped, what is the human actually approving?*
 
 The answer: **artifacts belong to machines, intent belongs to the human.** Machine-checkable correctness — build, types, lint, tests, secret scans — is owned by deterministic gates and review agents; a heavy review pipeline is an investment in taking the human *off* artifact inspection, not a staging area for it. The human's judgment is reserved for the layer no test can check: whether the change matches what the operator actually wants.
 
@@ -38,11 +40,11 @@ The forced plan-delta field is the point: deviating from the plan is fine; a dev
 
 A review agent is an inspector, not an approver. An LLM judge carries the generator–verifier gap — when proposer and checker are the same system, the check inherits the proposer's blind spots. Approval is therefore composed of *deterministic-gate PASS* + *human intent judgment*, never an LLM sign-off alone.
 
-## The hook
+## How the hook worked
 
-[`hooks/evidence-file-notice.sh`](hooks/evidence-file-notice.sh) is the deterministic detection surface for the evidence-producing category: a PreToolUse hook that fires on `git commit`, lists staged evidence-side files (tests, CI definitions, lint config, dependency manifests, …), and asks the agent to append their diffs to the intent summary. It emits `additionalContext`, never blocks — which files are evidence-side is a structural property (path-decidable, so code owns it); what to do about them is the human's call. It is a conservative candidate extractor, not a complete classifier.
+[`hooks/evidence-file-notice.sh`](hooks/evidence-file-notice.sh) was the deterministic detection surface for the evidence-producing category. On `git commit`, this PreToolUse hook listed staged evidence-side files and asked the agent to append their diffs to the intent summary. It emitted `additionalContext` and never blocked.
 
-Wire it in `~/.claude/settings.json`:
+The historical setup used this `~/.claude/settings.json` entry:
 
 ```json
 {
@@ -57,7 +59,9 @@ Wire it in `~/.claude/settings.json`:
 }
 ```
 
-## Install
+## Historical installation
+
+These commands are provided only to reproduce the archived design; they are not a recommendation for current harnesses.
 
 ```bash
 # Rule — copy into your always-loaded rules directory
@@ -67,20 +71,19 @@ cp rules/common/human-gate.md ~/.claude/rules/common/human-gate.md
 cp hooks/evidence-file-notice.sh ~/.claude/hooks/evidence-file-notice.sh
 ```
 
-The rule file is published verbatim from the author's live harness and is written in Japanese; this README carries the full conceptual summary in English. Cross-references inside the rule (`coding-style.md`, `planning.md`, `security.md`) point at sibling rules of that harness, published in [claude-harness](https://github.com/shimo4228/claude-harness) — adapt or drop them for your own rules directory.
+The bundled rule is the final Japanese snapshot from the author's former live setup; this README carries the conceptual summary in English. Its cross-references (`coding-style.md`, `planning.md`, `security.md`) describe that historical harness and may need adaptation if you reuse the rule elsewhere.
 
-## Syncing from the harness
+## Retirement and sync
 
-The canonical copies live in the author's live Claude Code harness. This repository is a one-way publication mirror:
+The live harness copies were removed on 2026-08-02. `scripts/sync-from-local.sh` now exits with a retirement notice instead of deleting or replacing this historical snapshot.
 
 ```bash
-scripts/sync-from-local.sh --dry-run   # report differences only
-scripts/sync-from-local.sh             # apply to working tree (never commits)
+scripts/sync-from-local.sh
 ```
 
 ## About this rule
 
-This rule is the operational instance — in the author's harness — of the approval-gate concepts of the [Agent Knowledge Cycle (AKC)](https://github.com/shimo4228/agent-knowledge-cycle) ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726)): the **line of approval** and the **human approval gate** (AKC glossary, ADR-0005), and the human-gated property of *Harness Alignment and Harness Drift* ([DOI 10.5281/zenodo.20578272](https://doi.org/10.5281/zenodo.20578272), §5): "What can be verified without the operator runs unattended; every change that shapes behavior passes the gate, and intent enters the loop with it." AKC is one of three research lines by [@shimo4228](https://github.com/shimo4228), alongside [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) ([DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)) and [Agent Attribution Practice (AAP)](https://github.com/shimo4228/agent-attribution-practice) ([DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013)).
+This rule was an operational instance in the author's harness of the approval-gate concepts of the [Agent Knowledge Cycle (AKC)](https://github.com/shimo4228/agent-knowledge-cycle) ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726)): the **line of approval** and the **human approval gate** (AKC glossary, ADR-0005), and the human-gated property of *Harness Alignment and Harness Drift* ([DOI 10.5281/zenodo.20578272](https://doi.org/10.5281/zenodo.20578272), §5). Its retirement records the point when the platform handled the capability well enough that the explicit scaffold could be removed. Related work by [@shimo4228](https://github.com/shimo4228) includes [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) ([DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)) and [Agent Attribution Practice (AAP)](https://github.com/shimo4228/agent-attribution-practice) ([DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013)).
 
 ## License
 

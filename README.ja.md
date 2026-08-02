@@ -2,7 +2,9 @@ Language: [English](README.md) | 日本語
 
 # human-gate
 
-コーディングエージェントの承認ゲートで**人間が何を判断するか**を固定する常駐 rule（+ 決定論的検出 hook）です。多くのゲート設計は*いつ*止まるか（可逆性・影響範囲）しか答えません。この rule は第 2 の軸に答えます: *止まったとき、人間は実際に何を承認しているのか？*
+> **2026-08-02 に著者の実運用 harness から退役しました。** 現行プラットフォームでは、依頼時の承認範囲がそのまま作業の境界となり、その範囲内では agent が作業を続けられるため、追加の独自承認ステップは不要になりました。この repo は、役割を終えた足場を外した歴史的事例として残しますが、著者の harness では使わず、同期もしません。
+
+この repo は、コーディングエージェントの承認ゲートで**人間が何を判断するか**を固定していた常駐 rule（+ 決定論的検出 hook）を記録しています。多くのゲート設計は*いつ*止まるか（可逆性・影響範囲）しか答えません。この rule は第 2 の軸に答えていました: *止まったとき、人間は実際に何を承認しているのか？*
 
 答え: **artifact は機械、intent は人間。** 機械検証できる正しさ——build・types・lint・tests・secret scan——は決定論ゲートと review agent が持ちます。手厚いレビュー体制は人間を artifact 検査から*降ろす*ための投資であり、人間が読むためのお膳立てではありません。人間の判断は、テストでは検査できない層——変更が operator の本当に望むものと合っているか——に取っておきます。
 
@@ -36,11 +38,11 @@ Language: [English](README.md) | 日本語
 
 review agent は検査者であって承認者ではありません。LLM judge は generator–verifier gap を持ちます——提案者と検査者が同一システムなら、検査は提案者の盲点を継承します。したがって承認は*決定論ゲートの PASS* + *人間の intent 判断*で構成し、LLM 単独の sign-off にはしません。
 
-## Hook
+## Hook の当時の動作
 
-[`hooks/evidence-file-notice.sh`](hooks/evidence-file-notice.sh) は証拠生成物カテゴリの決定論的検出面です: `git commit` で発火する PreToolUse hook で、staged の証拠側ファイル（テスト・CI 定義・lint 設定・依存 manifest…）を列挙し、意図の要約に diff の併記を求めます。`additionalContext` を出すだけで block はしません——どのファイルが証拠側かは構造的性質（パスで決まる = code の担当）、どうするかは人間の判断です。保守的な候補抽出器であり、完全な分類器ではありません。
+[`hooks/evidence-file-notice.sh`](hooks/evidence-file-notice.sh) は、証拠生成物カテゴリを検出する仕組みでした。`git commit` 時に staged の証拠側ファイルを列挙し、意図の要約に diff の併記を求める PreToolUse hook でした。`additionalContext` を出すだけで、処理は止めませんでした。
 
-`~/.claude/settings.json` での配線:
+当時は `~/.claude/settings.json` に次のように配線していました:
 
 ```json
 {
@@ -55,7 +57,9 @@ review agent は検査者であって承認者ではありません。LLM judge 
 }
 ```
 
-## インストール
+## 歴史的 snapshot のインストール
+
+以下は退役済み設計を再現するための記録であり、現行 harness への導入を推奨するものではありません。
 
 ```bash
 # Rule — 常駐 rules ディレクトリへコピー
@@ -65,20 +69,19 @@ cp rules/common/human-gate.md ~/.claude/rules/common/human-gate.md
 cp hooks/evidence-file-notice.sh ~/.claude/hooks/evidence-file-notice.sh
 ```
 
-rule 本文は著者の生きた harness からの verbatim publish（日本語）です。rule 内の相互参照（`coding-style.md`・`planning.md`・`security.md`）はその harness の隣接 rule を指し、[claude-harness](https://github.com/shimo4228/claude-harness) に公開されています——自分の rules ディレクトリに合わせて調整するか、削ってください。
+同梱 rule は、著者が以前使っていた live harness の最終 snapshot です。rule 内の相互参照（`coding-style.md`・`planning.md`・`security.md`）は当時の構成を指すため、別環境で再利用する場合は調整してください。
 
-## harness からの同期
+## 退役と同期
 
-正本は著者の生きた Claude Code harness にあります。この repo は一方向の公開ミラーです:
+live harness 側の正本は 2026-08-02 に削除しました。`scripts/sync-from-local.sh` は歴史的 snapshot を削除・置換せず、退役通知を表示して終了します。
 
 ```bash
-scripts/sync-from-local.sh --dry-run   # 差分の報告のみ
-scripts/sync-from-local.sh             # working tree に適用（commit はしない）
+scripts/sync-from-local.sh
 ```
 
-## About this rule
+## このルールについて
 
-この rule は [Agent Knowledge Cycle (AKC)](https://github.com/shimo4228/agent-knowledge-cycle)（[DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726)）の承認ゲート概念——**line of approval** と **human approval gate**（AKC glossary・ADR-0005）、および *Harness Alignment and Harness Drift*（[DOI 10.5281/zenodo.20578272](https://doi.org/10.5281/zenodo.20578272)）§5 の human-gated property——の、著者の harness における運用インスタンスです: "What can be verified without the operator runs unattended; every change that shapes behavior passes the gate, and intent enters the loop with it." AKC は [@shimo4228](https://github.com/shimo4228) の 3 研究線の 1 つです（他: [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) [DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)、[Agent Attribution Practice (AAP)](https://github.com/shimo4228/agent-attribution-practice) [DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013)）。
+この rule は [Agent Knowledge Cycle (AKC)](https://github.com/shimo4228/agent-knowledge-cycle)（[DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726)）の承認ゲート概念——**line of approval** と **human approval gate**（AKC glossary・ADR-0005）、および *Harness Alignment and Harness Drift*（[DOI 10.5281/zenodo.20578272](https://doi.org/10.5281/zenodo.20578272)）§5 の human-gated property——を著者の harness で運用した実装でした。今回の退役は、プラットフォームが役割を十分に担えるようになり、明示的な足場を外した時点を記録しています。[@shimo4228](https://github.com/shimo4228) の関連プロジェクトには [Contemplative Agent](https://github.com/shimo4228/contemplative-agent)（[DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)）と [Agent Attribution Practice (AAP)](https://github.com/shimo4228/agent-attribution-practice)（[DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013)）があります。
 
 ## License
 

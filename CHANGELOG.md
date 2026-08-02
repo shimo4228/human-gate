@@ -3,6 +3,14 @@
 All notable changes to this rule are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [Retired] — 2026-08-02
+
+- Retired the rule and detection hook from the author's live harness after the
+  current agent substrate absorbed their intended behavior.
+- Preserved this repository as a historical example of scaffold dissolution.
+- Disabled one-way sync so the historical snapshot is not deleted when the
+  live source files are absent.
+
 ## [1.0] — initial release
 
 First public release of `human-gate`.
