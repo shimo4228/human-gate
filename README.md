@@ -2,7 +2,7 @@ Language: English | [日本語](README.ja.md)
 
 # human-gate
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shimo4228/human-gate) [![GitMCP](https://img.shields.io/endpoint?url=https://gitmcp.io/badge/shimo4228/human-gate)](https://gitmcp.io/shimo4228/human-gate)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shimo4228/human-gate)
 
 > **Retired from the author's live harness on 2026-08-02.** The platform now treats the operator's task authorization as the approval boundary and lets the agent continue within it, so a second custom approval step was no longer useful. The repository remains as a historical example of removing a scaffold after its role has been absorbed; it is no longer synced from or active in the author's harness.
 
