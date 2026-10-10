@@ -1,8 +1,10 @@
 # human-gate
 
-> An always-loaded rule (plus a deterministic PreToolUse hook) that fixes the second axis of a coding agent's approval gate: not *when* to stop (reversibility — a separate axis), but *what the human judges once stopped*. Machine-checkable artifact correctness (build / types / lint / tests / secret scan) belongs to deterministic gates and review agents; the human owns intent. What is presented at the gate splits by target: behavior-shaping artifacts, the control plane, and evidence-producing artifacts get full text; implementation code gets a fixed five-field intent summary with a forced three-value plan-delta field.
+> A retired always-loaded rule (plus a deterministic PreToolUse hook) that fixed the second axis of a coding agent's approval gate: not *when* to stop (reversibility — a separate axis), but *what the human judges once stopped*. Machine-checkable artifact correctness (build / types / lint / tests / secret scan) belongs to deterministic gates and review agents; the human owns intent. What was presented at the gate split by target: behavior-shaping artifacts, the control plane, and evidence-producing artifacts got full text; implementation code got a fixed five-field intent summary with a forced three-value plan-delta field.
 
-The core insight of the evidence-producing category: tests, fixtures, lint config, coverage thresholds, CI definitions, review-agent prompts, and dependencies produce the evidence machine verification rests on. A change there moves *what counts as verified* — rewrite the tests to match the implementation and the agent can report all-PASS without lying. So they are presented in full, like the control plane, and their detection is deterministic (a path-decidable structural property, owned by code via the bundled hook).
+The core insight of the evidence-producing category: tests, fixtures, lint config, coverage thresholds, CI definitions, review-agent prompts, and dependencies produce the evidence machine verification rests on. A change there moves *what counts as verified* — rewrite the tests to match the implementation and the agent can report all-PASS without lying. So they were presented in full, like the control plane, and their detection was deterministic (a path-decidable structural property, owned by code via the bundled hook).
+
+Status: frozen record. The rule and hook were retired from the author's live harness on 2026-08-02 (harness ADR-0035) and the repository is no longer synced from or active in that harness; it is kept as a historical example of removing a scaffold once the platform has absorbed its role. On that day the author inferred from Claude Code's session-level instructions, as a runtime observation rather than a stable product contract, that the task request had become the approval boundary, so the rule's uniform stop competed with the default.
 
 ## Core model
 
@@ -10,20 +12,22 @@ The core insight of the evidence-producing category: tests, fixtures, lint confi
 - **Fixed intent-summary schema** (5 mandatory fields): approved intent / realized change / plan delta (none | present | re-approval needed) / user & operational impact / evidence-side changes. Checked against a human-approved referent (the pre-implementation plan), never read as free-form self-report.
 - **No LLM-only approval**: a review agent is an inspector, not an approver (generator–verifier gap). Approval = deterministic-gate PASS + human intent judgment.
 - **FAIL exception**: deterministic-gate failures show the detection line itself (secrets masked); only PASS stays off the approval surface, and PASS evidence is retained in machine-readable logs ("not shown" ≠ "not kept").
-- **Hook** (`hooks/evidence-file-notice.sh`): PreToolUse on `git commit`; lists staged evidence-side files via `additionalContext`, never blocks — a conservative candidate extractor, not a complete classifier.
+- **Hook** (`hooks/evidence-file-notice.sh`): PreToolUse on `git commit`; listed staged evidence-side files via `additionalContext`, never blocked — a conservative candidate extractor, not a complete classifier.
 
 ## Files
 
-- [rules/common/human-gate.md](rules/common/human-gate.md): the rule, published verbatim from the author's live harness (Japanese; the READMEs carry the conceptual summary in English and Japanese).
-- [hooks/evidence-file-notice.sh](hooks/evidence-file-notice.sh): the deterministic detection hook, with a settings.json wiring snippet in the README.
-- [README.md](README.md) / [README.ja.md](README.ja.md): overview, decision table, schema, install.
+- [rules/common/human-gate.md](rules/common/human-gate.md): the rule, the final Japanese snapshot from the author's former live harness (the READMEs carry the conceptual summary in English and Japanese).
+- [scripts/sync-from-local.sh](scripts/sync-from-local.sh): the former one-way sync script; it now only prints a retirement notice and synchronizes nothing.
+- [hooks/evidence-file-notice.sh](hooks/evidence-file-notice.sh): the deterministic detection hook (needs `git` and `jq`), with the historical settings.json wiring snippet in the README.
+- [README.md](README.md) / [README.ja.md](README.ja.md): overview, decision table, schema, historical installation, retirement.
 - [CHANGELOG.md](CHANGELOG.md): version history.
 
 ## Boundaries
 
-- NOT a reversibility gate (axis 1 lives elsewhere in the author's harness) and NOT a review-agent prompt — this rule allocates judgment between machines and the human.
-- The rule text is operator-specific in its cross-references; adapt them to your own rules directory.
+- NOT a current recommendation: the installation steps only reproduce the archived design.
+- NOT a reversibility gate (axis 1 was a separate axis of the author's harness) and NOT a review-agent prompt — this rule allocates judgment between machines and the human.
+- The rule text's cross-references (`coding-style.md`, `planning.md`, `security.md`) describe the historical harness; adapt them if you reuse the rule.
 
 ## About
 
-The operational instance of the Agent Knowledge Cycle's line of approval / human approval gate (AKC, DOI 10.5281/zenodo.19200726, glossary + ADR-0005) and of the human-gated property of the position paper *Harness Alignment and Harness Drift* (DOI 10.5281/zenodo.20578272, §5): "What can be verified without the operator runs unattended; every change that shapes behavior passes the gate, and intent enters the loop with it." Author: shimo4228. License: MIT.
+The rule was an operational instance of the Agent Knowledge Cycle's line of approval / human approval gate (AKC, DOI 10.5281/zenodo.19200726, glossary + ADR-0005) and of the human-gated property of the position paper *Harness Alignment and Harness Drift* (DOI 10.5281/zenodo.20578272, §5): "What can be verified without the operator runs unattended; every change that shapes behavior passes the gate, and intent enters the loop with it." The rule was introduced by harness ADR-0019 (2026-07-25) and retired by harness ADR-0035, both published in [claude-harness](https://github.com/shimo4228/claude-harness); the retirement is recorded in [harness-pruning](https://github.com/shimo4228/harness-pruning). The author's hub, with the long-running practice lines and their DOIs: [shimo4228/shimo4228](https://github.com/shimo4228/shimo4228). Author: shimo4228. License: MIT.
